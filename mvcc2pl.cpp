@@ -1,6 +1,6 @@
 /*
  * @Author: feng.lu
- * @Date: 2023-04-14 12:18:12
+ * @Date: 2023-04-15 12:18:12
  * @Descripttion: --
  * @LastEditors: feng.lu
  * @LastEditTime: 2023-04-15 21:13:57
@@ -16,22 +16,22 @@
 #include <vector>
 using namespace std;
 
-// const int N = 100000; // Êı×é³¤¶È
-// const int M = 10;     // ¹¤×÷Ïß³ÌÊı
-// const int R = 10000;  // Ã¿¸öÏß³ÌÖØ¸´´ÎÊı
+// const int N = 100000; // æ•°ç»„é•¿åº¦
+// const int M = 10;     // å·¥ä½œçº¿ç¨‹æ•°
+// const int R = 10000;  // æ¯ä¸ªçº¿ç¨‹é‡å¤æ¬¡æ•°
 
-const int ARRs = 1000; // Êı×é³¤¶È
-const int WORKs = 100; // ¹¤×÷Ïß³ÌÊı
-const int RUNs = 10000; // Ã¿¸öÏß³ÌÖØ¸´´ÎÊı
+const int ARRs = 1000; // æ•°ç»„é•¿åº¦
+const int WORKs = 100; // å·¥ä½œçº¿ç¨‹æ•°
+const int RUNs = 10000; // æ¯ä¸ªçº¿ç¨‹é‡å¤æ¬¡æ•°
 
 class Node {
 public:
-    unsigned long version; // °æ±¾ºÅ£¬Ê¹ÓÃÊ±¼äµãÀàĞÍ
-    int data; // Êı¾İÖµ
-    std::atomic<bool> lck; // Ëø±ê¼ÇÎ»
-    std::atomic<bool> pin; // block±ê¼ÇÎ»
-    Node* next; // Ö¸ÏòÏÂÒ»¸ö½Úµã
-    std::mutex mtx; // »¥³âËø
+    unsigned long version; // ç‰ˆæœ¬å·ï¼Œä½¿ç”¨æ—¶é—´ç‚¹ç±»å‹
+    int data; // æ•°æ®å€¼
+    std::atomic<bool> lck; // é”æ ‡è®°ä½
+    std::atomic<bool> pin; // blockæ ‡è®°ä½
+    Node* next; // æŒ‡å‘ä¸‹ä¸€ä¸ªèŠ‚ç‚¹
+    std::mutex mtx; // äº’æ–¥é”
 public:
     Node()
         : version(get_scn())
@@ -40,7 +40,7 @@ public:
         , pin(false)
         , next(nullptr)
     {
-    } // ¹¹Ôìº¯Êı£¬Ê¹ÓÃµ±Ç°Ê±¼äµã×÷Îª°æ±¾ºÅ
+    } // æ„é€ å‡½æ•°ï¼Œä½¿ç”¨å½“å‰æ—¶é—´ç‚¹ä½œä¸ºç‰ˆæœ¬å·
     Node(int d, unsigned long version)
         : version(version)
         , data(d)
@@ -48,7 +48,7 @@ public:
         , pin(false)
         , next(nullptr)
     {
-    } // ¹¹Ôìº¯Êı£¬Ê¹ÓÃµ±Ç°Ê±¼äµã×÷Îª°æ±¾ºÅ
+    } // æ„é€ å‡½æ•°ï¼Œä½¿ç”¨å½“å‰æ—¶é—´ç‚¹ä½œä¸ºç‰ˆæœ¬å·
 
     void to_string() const
     {
@@ -59,7 +59,7 @@ public:
         // lck = 1;
     }
 
-    // ´óËø³õÊ¼»¯°æ±¾
+    // å¤§é”åˆå§‹åŒ–ç‰ˆæœ¬
     void set(int i)
     {
         this->data = i;
@@ -72,8 +72,8 @@ public:
     void set_data(int arr, int i)
     {
         int t_arr = arr;
-        unsigned long t_scn = get_scn(); // »ñÈ¡»¥³âËø
-        this->pin.store(true); // Ä£Äâpin bufferµÄÄÚ´æĞŞ¸Ä²Ù×÷
+        unsigned long t_scn = get_scn(); // è·å–äº’æ–¥é”
+        this->pin.store(true); // æ¨¡æ‹Ÿpin bufferçš„å†…å­˜ä¿®æ”¹æ“ä½œ
 
         Node* new_node = new Node(this->data, this->version);
         new_node->next = this->next;
@@ -81,8 +81,8 @@ public:
         this->data = i;
         this->version = t_scn;
         // new_node->pin.store(false);
-        //  new_node->next         = g_list;             // ½«ĞÂ½ÚµãÖ¸Ïò¾É½Úµã
-        //  g_list                 = new_node;           // ½«È«¾ÖÖ¸ÕëÖ¸ÏòĞÂ½Úµã
+        //  new_node->next         = g_list;             // å°†æ–°èŠ‚ç‚¹æŒ‡å‘æ—§èŠ‚ç‚¹
+        //  g_list                 = new_node;           // å°†å…¨å±€æŒ‡é’ˆæŒ‡å‘æ–°èŠ‚ç‚¹
         //  std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(100));
         // debug info
         // std::cout << "arr[" << t_arr << "] old data is:" << new_node->data << ",version:" << new_node->version << std::endl;
@@ -95,25 +95,25 @@ public:
     {
         unsigned long t_scn = scn;
         int arr = at_arr;
-        // Ö»¼ì²éÊÂÎñËø,¶ÁĞ´²»³åÍ»;Ê¹ÓÃÁ´±í»áµ¼ÖÂÔÚmvccÊ±µÄĞ§ÂÊ½Ï²î
+        // åªæ£€æŸ¥äº‹åŠ¡é”,è¯»å†™ä¸å†²çª;ä½¿ç”¨é“¾è¡¨ä¼šå¯¼è‡´åœ¨mvccæ—¶çš„æ•ˆç‡è¾ƒå·®
         while (this->pin) {
-            // Êä³öµÈ´ıbuffer pinÊÍ·Å
+            // è¾“å‡ºç­‰å¾…buffer piné‡Šæ”¾
             // std::cout << "wait pin" << std::endl;
         }
         // unsigned long t_scn = this->get_scn();
-        Node* cur = this; // µ±Ç°Ö¸Õë
-        while (cur && cur->version > t_scn) { // ±éÀúÁ´±í£¬ÕÒµ½¶ÔÓ¦Ê±¼äµãµÄ½Úµã
+        Node* cur = this; // å½“å‰æŒ‡é’ˆ
+        while (cur && cur->version > t_scn) { // éå†é“¾è¡¨ï¼Œæ‰¾åˆ°å¯¹åº”æ—¶é—´ç‚¹çš„èŠ‚ç‚¹
             // std::cout << "read to next version" << endl;
             // std::cout << "array:[" << arr << "] scn>" << t_scn << " read to next version-->" << cur->version << ", data: " << cur->data << std::endl;
             cur = cur->next;
         }
-        if (cur && cur->version <= t_scn) { // Èç¹ûÕÒµ½ÁË£¬¾Í½«È«¾ÖÖ¸ÕëÖ¸Ïò¸Ã½Úµã
+        if (cur && cur->version <= t_scn) { // å¦‚æœæ‰¾åˆ°äº†ï¼Œå°±å°†å…¨å±€æŒ‡é’ˆæŒ‡å‘è¯¥èŠ‚ç‚¹
             // std::cout << "array:[" << arr << "] scn>" << t_scn << "###get wanting data version###: " << cur->version << "  ----- data: " << cur->data << "  -----" << std::endl;
 
             // std::cout << "array:[" << arr << "] version:" << cur->version << "  value: " << cur->data << ";" << std::endl;
 
             return cur->data;
-        } else { // Èç¹ûÃ»ÕÒµ½£¬¾ÍÊä³öÌáÊ¾ĞÅÏ¢
+        } else { // å¦‚æœæ²¡æ‰¾åˆ°ï¼Œå°±è¾“å‡ºæç¤ºä¿¡æ¯
             std::cout << "ORA-01555: " << t_scn << std::endl;
             return -1;
         }
@@ -121,7 +121,7 @@ public:
 
     static unsigned long get_scn()
     {
-        // ×ª»»ÎªÊ±¼ä´Á£¨Î¢Ãë£©
+        // è½¬æ¢ä¸ºæ—¶é—´æˆ³ï¼ˆå¾®ç§’ï¼‰
         auto now = std::chrono::system_clock::now();
         auto timestamp = std::chrono::duration_cast<std::chrono::nanoseconds>(now.time_since_epoch()).count();
         return timestamp;
@@ -129,7 +129,7 @@ public:
 };
 
 std::array<Node, ARRs> nodes;
-std::mutex g_mutex; // ³õÊ¼»¯»¥³âËø
+std::mutex g_mutex; // åˆå§‹åŒ–äº’æ–¥é”
 
 unsigned long get_scn()
 {
@@ -162,23 +162,23 @@ void dump()
 void worker(unsigned long t_scn)
 {
     // std::cout << "" << endl;
-    std::random_device rd; // Ëæ»úÊıÉú³ÉÆ÷
-    std::mt19937 gen(rd()); // Î±Ëæ»úÊıÒıÇæ
-    std::uniform_int_distribution<> dis(0, ARRs - 1); // ¾ùÔÈ·Ö²¼
+    std::random_device rd; // éšæœºæ•°ç”Ÿæˆå™¨
+    std::mt19937 gen(rd()); // ä¼ªéšæœºæ•°å¼•æ“
+    std::uniform_int_distribution<> dis(0, ARRs - 1); // å‡åŒ€åˆ†å¸ƒ
     unsigned long scn = t_scn;
     for (int i = 0; i < RUNs; ++i) {
-        int x = dis(gen); // Ëæ»úÉú³Éx
-        int y = dis(gen); // Ëæ»úÉú³Éy
-        std::lock_guard<std::mutex> lock(nodes[y].mtx); // ÉÏËø,Èç¹ûÍ¬Ê±ĞŞ¸ÄÔòÄÚºËµ÷¶ÈË¯Ãß
+        int x = dis(gen); // éšæœºç”Ÿæˆx
+        int y = dis(gen); // éšæœºç”Ÿæˆy
+        std::lock_guard<std::mutex> lock(nodes[y].mtx); // ä¸Šé”,å¦‚æœåŒæ—¶ä¿®æ”¹åˆ™å†…æ ¸è°ƒåº¦ç¡çœ 
 
-        // ËøÓÅ»¯
-        //  nodes[y].lck.store(true);                       // Òı·¢µİ¹éµ÷ÓÃ£¬undoÒ»ÖÂĞÔ¶ÁÈ¡£¬ÓĞ¿ÉÄÜÃ»ÓĞÊÂÎñ»òÕßÊÂÎñÌá½»ÁË»¹´æÔÚlockĞÅÏ¢£¬Ö»ĞèÅĞ¶Ï
+        // é”ä¼˜åŒ–
+        //  nodes[y].lck.store(true);                       // å¼•å‘é€’å½’è°ƒç”¨ï¼Œundoä¸€è‡´æ€§è¯»å–ï¼Œæœ‰å¯èƒ½æ²¡æœ‰äº‹åŠ¡æˆ–è€…äº‹åŠ¡æäº¤äº†è¿˜å­˜åœ¨lockä¿¡æ¯ï¼Œåªéœ€åˆ¤æ–­
         //   std::cout << "node:[" << y << "] = node[" << x << "]+node[" << x + 1 << "]+node[" << x + 2 << "];" << endl;
 
 
-        nodes[y].set_data(y, nodes[x].get_data(scn, x) + nodes[(x + 1) % ARRs].get_data(scn, (x + 1) % ARRs) + nodes[(x + 2) % ARRs].get_data(scn, (x + 2) % ARRs)); // ¸üĞÂarray[y]
+        nodes[y].set_data(y, nodes[x].get_data(scn, x) + nodes[(x + 1) % ARRs].get_data(scn, (x + 1) % ARRs) + nodes[(x + 2) % ARRs].get_data(scn, (x + 2) % ARRs)); // æ›´æ–°array[y]
         // std::this_thread::sleep_for(std::chrono::duration<double, std::milli>(100));
-        //  ËøÓÅ»¯
+        //  é”ä¼˜åŒ–
         //  nodes[y].lck.store(false);
     }
 };
@@ -193,9 +193,9 @@ void get_system_time()
 
 int main()
 {
-    // ´´½¨4¸ö¶ÁÏß³ÌºÍ2¸öĞ´Ïß³ÌºÍ1¸ö»ØËİÏß³Ì
+    // åˆ›å»º4ä¸ªè¯»çº¿ç¨‹å’Œ2ä¸ªå†™çº¿ç¨‹å’Œ1ä¸ªå›æº¯çº¿ç¨‹
 
-    // std::vector<Node> nodes; // ¹²ÏíÊı×é
+    // std::vector<Node> nodes; // å…±äº«æ•°ç»„
     // for (int i = 0; i < N; ++i) {
     //     nodes.emplace_back(i, Node::get_scn());
     // }
@@ -252,7 +252,7 @@ int main()
     //     readers[i] = std::thread{read_data, i, get_scn()};
     // }
 
-    // // µÈ´ıËùÓĞÏß³Ì½áÊø
+    // // ç­‰å¾…æ‰€æœ‰çº¿ç¨‹ç»“æŸ
     // for (int i = 0; i < RE; i++) {
     //     readers[i].join();
     // }
